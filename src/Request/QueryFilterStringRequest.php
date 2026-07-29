@@ -6,7 +6,7 @@ namespace Letkode\QueryFilterBundle\Request;
 
 use Symfony\Component\Validator\Constraints as Assert;
 
-final readonly class QueryStringRequest
+final readonly class QueryFilterStringRequest
 {
     public function __construct(
         #[Assert\Positive]

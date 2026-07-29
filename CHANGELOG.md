@@ -11,6 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-07-29
+
+### Changed
+- `Filter\QueryFilterRequest` renamed to `Filter\QueryFilter`
+- `Request\QueryRequest` renamed to `Request\QueryFilterRequest`
+- `Request\QueryStringRequest` renamed to `Request\QueryFilterStringRequest`
+- `Request\QueryRequestFactory` renamed to `Factory\QueryFilterRequestFactory` and moved to the new `Factory/` namespace
+
+---
+
 ## [1.0.0] - 2026-07-28
 
 ### Added

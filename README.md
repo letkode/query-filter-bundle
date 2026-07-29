@@ -52,14 +52,14 @@ $input->castValue('42.5');             // typed value
 $input->castValues(['1', '2']);        // list<mixed>
 ```
 
-### `QueryFilterRequest`
+### `QueryFilter`
 
 Parses raw filter arrays (as sent by a frontend) into `list<FilterCriteria>`.
 
 ```php
-use Letkode\QueryFilterBundle\Filter\QueryFilterRequest;
+use Letkode\QueryFilterBundle\Filter\QueryFilter;
 
-$filters = QueryFilterRequest::fromArray([
+$filters = QueryFilter::fromArray([
     'firstName' => [['op' => 'is', 'value' => ['Ana']]],
 ]);
 ```
@@ -68,35 +68,39 @@ $filters = QueryFilterRequest::fromArray([
 
 ## `Request/`
 
-### `QueryStringRequest`
+### `QueryFilterStringRequest`
 
 Validated DTO to bind directly from a query string.
 
 ```php
-use Letkode\QueryFilterBundle\Request\QueryStringRequest;
+use Letkode\QueryFilterBundle\Request\QueryFilterStringRequest;
 
-$request = new QueryStringRequest(page: 1, perPage: 20, q: 'search', sort: 'name', dir: 'asc');
+$request = new QueryFilterStringRequest(page: 1, perPage: 20, q: 'search', sort: 'name', dir: 'asc');
 ```
 
-### `QueryRequest`
+### `QueryFilterRequest`
 
 Normalized query: page, perPage, search term, sort, direction and parsed filters.
 
 ```php
-use Letkode\QueryFilterBundle\Request\QueryRequest;
+use Letkode\QueryFilterBundle\Request\QueryFilterRequest;
 
-$query = QueryRequest::fromArray($request->query->all());
+$query = QueryFilterRequest::fromArray($request->query->all());
 // $query->page, $query->perPage, $query->q, $query->sort, $query->dir, $query->filters
 ```
 
-### `QueryRequestFactory`
+---
 
-Builds a `QueryRequest` from a validated `QueryStringRequest`.
+## `Factory/`
+
+### `QueryFilterRequestFactory`
+
+Builds a `QueryFilterRequest` from a validated `QueryFilterStringRequest`.
 
 ```php
-use Letkode\QueryFilterBundle\Request\QueryRequestFactory;
+use Letkode\QueryFilterBundle\Factory\QueryFilterRequestFactory;
 
-$query = QueryRequestFactory::build($queryStringRequest);
+$query = QueryFilterRequestFactory::build($queryStringRequest);
 ```
 
 ---

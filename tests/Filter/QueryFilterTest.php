@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Letkode\QueryFilterBundle\Tests\Filter;
 
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
-use Letkode\QueryFilterBundle\Filter\QueryFilterRequest;
+use Letkode\QueryFilterBundle\Filter\QueryFilter;
 use PHPUnit\Framework\TestCase;
 
-final class QueryFilterRequestTest extends TestCase
+final class QueryFilterTest extends TestCase
 {
     public function testFromArrayWithEmptyInput(): void
     {
-        self::assertSame([], QueryFilterRequest::fromArray([]));
+        self::assertSame([], QueryFilter::fromArray([]));
     }
 
     public function testFromArrayParsesFiltersWithSingleValue(): void
     {
-        $filters = QueryFilterRequest::fromArray([
+        $filters = QueryFilter::fromArray([
             'firstName' => [['op' => 'is', 'value' => ['PRUEBA']]],
         ]);
 
@@ -30,7 +30,7 @@ final class QueryFilterRequestTest extends TestCase
 
     public function testFromArrayParsesValuelessOperator(): void
     {
-        $filters = QueryFilterRequest::fromArray([
+        $filters = QueryFilter::fromArray([
             'email' => [['op' => 'empty']],
         ]);
 
@@ -41,7 +41,7 @@ final class QueryFilterRequestTest extends TestCase
 
     public function testFromArrayIgnoresFiltersWithoutOp(): void
     {
-        $filters = QueryFilterRequest::fromArray([
+        $filters = QueryFilter::fromArray([
             'firstName' => [['value' => ['foo']]],
         ]);
 
@@ -50,7 +50,7 @@ final class QueryFilterRequestTest extends TestCase
 
     public function testFromArrayParsesMultipleConditionsPerField(): void
     {
-        $filters = QueryFilterRequest::fromArray([
+        $filters = QueryFilter::fromArray([
             'firstName' => [
                 ['op' => 'contains', 'value' => ['An']],
                 ['op' => 'ends_with', 'value' => ['o']],
@@ -64,7 +64,7 @@ final class QueryFilterRequestTest extends TestCase
 
     public function testFromArrayIgnoresNonArrayEntries(): void
     {
-        $filters = QueryFilterRequest::fromArray([
+        $filters = QueryFilter::fromArray([
             'firstName' => 'not-an-array',
         ]);
 

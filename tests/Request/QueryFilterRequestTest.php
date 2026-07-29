@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Letkode\QueryFilterBundle\Tests\Request;
 
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
-use Letkode\QueryFilterBundle\Request\QueryRequest;
+use Letkode\QueryFilterBundle\Request\QueryFilterRequest;
 use PHPUnit\Framework\TestCase;
 
-final class QueryRequestTest extends TestCase
+final class QueryFilterRequestTest extends TestCase
 {
     public function testDefaultValues(): void
     {
-        $request = new QueryRequest();
+        $request = new QueryFilterRequest();
 
         self::assertSame(1, $request->page);
         self::assertSame(20, $request->perPage);
@@ -24,7 +24,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayWithAllParams(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'page' => '3',
             'per_page' => '50',
             'q' => 'search term',
@@ -41,56 +41,56 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayClampsPageToMinimumOne(): void
     {
-        $request = QueryRequest::fromArray(['page' => '-5']);
+        $request = QueryFilterRequest::fromArray(['page' => '-5']);
 
         self::assertSame(1, $request->page);
     }
 
     public function testFromArrayClampsPerPageToMaximum100(): void
     {
-        $request = QueryRequest::fromArray(['per_page' => '999']);
+        $request = QueryFilterRequest::fromArray(['per_page' => '999']);
 
         self::assertSame(100, $request->perPage);
     }
 
     public function testFromArrayClampsPerPageToMinimumOne(): void
     {
-        $request = QueryRequest::fromArray(['per_page' => '0']);
+        $request = QueryFilterRequest::fromArray(['per_page' => '0']);
 
         self::assertSame(1, $request->perPage);
     }
 
     public function testFromArrayReturnsNullQForEmptyString(): void
     {
-        $request = QueryRequest::fromArray(['q' => '']);
+        $request = QueryFilterRequest::fromArray(['q' => '']);
 
         self::assertNull($request->q);
     }
 
     public function testFromArrayReturnsNullSortForEmptyString(): void
     {
-        $request = QueryRequest::fromArray(['sort' => '']);
+        $request = QueryFilterRequest::fromArray(['sort' => '']);
 
         self::assertNull($request->sort);
     }
 
     public function testFromArrayDefaultsInvalidDirToAsc(): void
     {
-        $request = QueryRequest::fromArray(['dir' => 'random']);
+        $request = QueryFilterRequest::fromArray(['dir' => 'random']);
 
         self::assertSame('asc', $request->dir);
     }
 
     public function testFromArrayAllowsDesc(): void
     {
-        $request = QueryRequest::fromArray(['dir' => 'desc']);
+        $request = QueryFilterRequest::fromArray(['dir' => 'desc']);
 
         self::assertSame('desc', $request->dir);
     }
 
     public function testFromArrayWithEmptyParams(): void
     {
-        $request = QueryRequest::fromArray([]);
+        $request = QueryFilterRequest::fromArray([]);
 
         self::assertSame(1, $request->page);
         self::assertSame(20, $request->perPage);
@@ -102,14 +102,14 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayParsesPerPageCamelCase(): void
     {
-        $request = QueryRequest::fromArray(['perPage' => '50']);
+        $request = QueryFilterRequest::fromArray(['perPage' => '50']);
 
         self::assertSame(50, $request->perPage);
     }
 
     public function testFromArrayParsesFiltersWithSingleValue(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'firstName' => [['op' => 'is', 'value' => ['PRUEBA']]],
             ],
@@ -124,7 +124,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayParsesFiltersWithMultipleValues(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'rolePolicy' => [['op' => 'is_any_of', 'value' => ['uuid-1', 'uuid-2']]],
             ],
@@ -137,7 +137,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayParsesValuelessOperator(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'email' => [['op' => 'empty']],
             ],
@@ -150,7 +150,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayIgnoresFiltersWithoutOp(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'firstName' => [['value' => ['foo']]],
             ],
@@ -161,7 +161,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayHandlesMultipleFilters(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'firstName' => [['op' => 'starts_with', 'value' => ['An']]],
                 'enabled' => [['op' => 'is', 'value' => ['true']]],
@@ -173,7 +173,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayParsesMultipleConditionsPerField(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'firstName' => [
                     ['op' => 'contains', 'value' => ['An']],
@@ -193,7 +193,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayParsesMultipleFieldsWithMultipleConditions(): void
     {
-        $request = QueryRequest::fromArray([
+        $request = QueryFilterRequest::fromArray([
             'filters' => [
                 'firstName' => [
                     ['op' => 'contains', 'value' => ['An']],
@@ -210,7 +210,7 @@ final class QueryRequestTest extends TestCase
 
     public function testFromArrayHandlesAbsentFiltersKey(): void
     {
-        $request = QueryRequest::fromArray(['page' => '1']);
+        $request = QueryFilterRequest::fromArray(['page' => '1']);
 
         self::assertSame([], $request->filters);
     }

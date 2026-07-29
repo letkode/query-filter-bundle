@@ -2,20 +2,20 @@
 
 declare(strict_types=1);
 
-namespace Letkode\QueryFilterBundle\Tests\Request;
+namespace Letkode\QueryFilterBundle\Tests\Factory;
 
+use Letkode\QueryFilterBundle\Factory\QueryFilterRequestFactory;
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
-use Letkode\QueryFilterBundle\Request\QueryRequestFactory;
-use Letkode\QueryFilterBundle\Request\QueryStringRequest;
+use Letkode\QueryFilterBundle\Request\QueryFilterStringRequest;
 use PHPUnit\Framework\TestCase;
 
-final class QueryRequestFactoryTest extends TestCase
+final class QueryFilterRequestFactoryTest extends TestCase
 {
     public function testBuildCopiesScalarsFromQueryString(): void
     {
-        $query = new QueryStringRequest(page: 2, perPage: 50, q: 'term', sort: 'name', dir: 'desc');
+        $query = new QueryFilterStringRequest(page: 2, perPage: 50, q: 'term', sort: 'name', dir: 'desc');
 
-        $result = QueryRequestFactory::build($query);
+        $result = QueryFilterRequestFactory::build($query);
 
         self::assertSame(2, $result->page);
         self::assertSame(50, $result->perPage);
@@ -26,11 +26,11 @@ final class QueryRequestFactoryTest extends TestCase
 
     public function testBuildParsesRawFiltersIntoFilterCriteria(): void
     {
-        $query = new QueryStringRequest(filters: [
+        $query = new QueryFilterStringRequest(filters: [
             'firstName' => [['op' => 'is', 'value' => ['Ana']]],
         ]);
 
-        $result = QueryRequestFactory::build($query);
+        $result = QueryFilterRequestFactory::build($query);
 
         self::assertCount(1, $result->filters);
         self::assertInstanceOf(FilterCriteria::class, $result->filters[0]);
@@ -41,7 +41,7 @@ final class QueryRequestFactoryTest extends TestCase
 
     public function testBuildWithDefaultsProducesEmptyFilters(): void
     {
-        $result = QueryRequestFactory::build(new QueryStringRequest());
+        $result = QueryFilterRequestFactory::build(new QueryFilterStringRequest());
 
         self::assertSame([], $result->filters);
     }
