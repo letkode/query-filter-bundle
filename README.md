@@ -52,14 +52,16 @@ $input->castValue('42.5');             // typed value
 $input->castValues(['1', '2']);        // list<mixed>
 ```
 
-### `QueryFilter`
+`$input->type` is a `FilterCastType` enum (`Text`, `Bool`, `Int`, `Float`, `Number`, `Date`, `ArrayType`), which owns the casting rule via `$input->type->cast($value)`.
+
+### `FilterQuery`
 
 Parses raw filter arrays (as sent by a frontend) into `list<FilterCriteria>`.
 
 ```php
-use Letkode\QueryFilterBundle\Filter\QueryFilter;
+use Letkode\QueryFilterBundle\Filter\FilterQuery;
 
-$filters = QueryFilter::fromArray([
+$filters = FilterQuery::fromArray([
     'firstName' => [['op' => 'is', 'value' => ['Ana']]],
 ]);
 ```
@@ -68,24 +70,24 @@ $filters = QueryFilter::fromArray([
 
 ## `Request/`
 
-### `QueryFilterStringRequest`
+### `FilterQueryStringRequest`
 
 Validated DTO to bind directly from a query string.
 
 ```php
-use Letkode\QueryFilterBundle\Request\QueryFilterStringRequest;
+use Letkode\QueryFilterBundle\Request\FilterQueryStringRequest;
 
-$request = new QueryFilterStringRequest(page: 1, perPage: 20, q: 'search', sort: 'name', dir: 'asc');
+$request = new FilterQueryStringRequest(page: 1, perPage: 20, q: 'search', sort: 'name', dir: 'asc');
 ```
 
-### `QueryFilterRequest`
+### `FilterQueryRequest`
 
 Normalized query: page, perPage, search term, sort, direction and parsed filters.
 
 ```php
-use Letkode\QueryFilterBundle\Request\QueryFilterRequest;
+use Letkode\QueryFilterBundle\Request\FilterQueryRequest;
 
-$query = QueryFilterRequest::fromArray($request->query->all());
+$query = FilterQueryRequest::fromArray($request->query->all());
 // $query->page, $query->perPage, $query->q, $query->sort, $query->dir, $query->filters
 ```
 
@@ -93,14 +95,14 @@ $query = QueryFilterRequest::fromArray($request->query->all());
 
 ## `Factory/`
 
-### `QueryFilterRequestFactory`
+### `FilterQueryRequestFactory`
 
-Builds a `QueryFilterRequest` from a validated `QueryFilterStringRequest`.
+Builds a `FilterQueryRequest` from a validated `FilterQueryStringRequest`.
 
 ```php
-use Letkode\QueryFilterBundle\Factory\QueryFilterRequestFactory;
+use Letkode\QueryFilterBundle\Factory\FilterQueryRequestFactory;
 
-$query = QueryFilterRequestFactory::build($queryStringRequest);
+$query = FilterQueryRequestFactory::build($queryStringRequest);
 ```
 
 ---

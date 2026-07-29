@@ -4,18 +4,18 @@ declare(strict_types=1);
 
 namespace Letkode\QueryFilterBundle\Tests\Factory;
 
-use Letkode\QueryFilterBundle\Factory\QueryFilterRequestFactory;
+use Letkode\QueryFilterBundle\Factory\FilterQueryRequestFactory;
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
-use Letkode\QueryFilterBundle\Request\QueryFilterStringRequest;
+use Letkode\QueryFilterBundle\Request\FilterQueryStringRequest;
 use PHPUnit\Framework\TestCase;
 
-final class QueryFilterRequestFactoryTest extends TestCase
+final class FilterQueryRequestFactoryTest extends TestCase
 {
     public function testBuildCopiesScalarsFromQueryString(): void
     {
-        $query = new QueryFilterStringRequest(page: 2, perPage: 50, q: 'term', sort: 'name', dir: 'desc');
+        $query = new FilterQueryStringRequest(page: 2, perPage: 50, q: 'term', sort: 'name', dir: 'desc');
 
-        $result = QueryFilterRequestFactory::build($query);
+        $result = FilterQueryRequestFactory::build($query);
 
         self::assertSame(2, $result->page);
         self::assertSame(50, $result->perPage);
@@ -26,11 +26,11 @@ final class QueryFilterRequestFactoryTest extends TestCase
 
     public function testBuildParsesRawFiltersIntoFilterCriteria(): void
     {
-        $query = new QueryFilterStringRequest(filters: [
+        $query = new FilterQueryStringRequest(filters: [
             'firstName' => [['op' => 'is', 'value' => ['Ana']]],
         ]);
 
-        $result = QueryFilterRequestFactory::build($query);
+        $result = FilterQueryRequestFactory::build($query);
 
         self::assertCount(1, $result->filters);
         self::assertInstanceOf(FilterCriteria::class, $result->filters[0]);
@@ -41,7 +41,7 @@ final class QueryFilterRequestFactoryTest extends TestCase
 
     public function testBuildWithDefaultsProducesEmptyFilters(): void
     {
-        $result = QueryFilterRequestFactory::build(new QueryFilterStringRequest());
+        $result = FilterQueryRequestFactory::build(new FilterQueryStringRequest());
 
         self::assertSame([], $result->filters);
     }

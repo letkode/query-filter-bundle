@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Letkode\QueryFilterBundle\Tests\Filter;
 
+use Letkode\QueryFilterBundle\Filter\FilterCastType;
 use Letkode\QueryFilterBundle\Filter\FilterInput;
 use PHPUnit\Framework\TestCase;
 
@@ -13,7 +14,7 @@ final class FilterInputTest extends TestCase
     {
         $input = FilterInput::text();
 
-        self::assertSame('text', $input->type);
+        self::assertSame(FilterCastType::Text, $input->type);
         self::assertNull($input->path);
     }
 
@@ -28,7 +29,7 @@ final class FilterInputTest extends TestCase
     {
         $input = FilterInput::number();
 
-        self::assertSame('number', $input->type);
+        self::assertSame(FilterCastType::Number, $input->type);
         self::assertNull($input->path);
     }
 
@@ -44,7 +45,7 @@ final class FilterInputTest extends TestCase
     {
         $input = FilterInput::date();
 
-        self::assertSame('date', $input->type);
+        self::assertSame(FilterCastType::Date, $input->type);
         self::assertNull($input->path);
     }
 

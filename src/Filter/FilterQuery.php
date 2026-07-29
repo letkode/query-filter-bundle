@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Letkode\QueryFilterBundle\Filter;
 
-final readonly class QueryFilter
+final readonly class FilterQuery
 {
     /**
      * @param array<string, mixed> $rawFilters

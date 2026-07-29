@@ -7,56 +7,49 @@ namespace Letkode\QueryFilterBundle\Filter;
 final readonly class FilterInput
 {
     private function __construct(
-        public string $type,
+        public FilterCastType $type,
         public string|null $path = null,
-        private string|null $cast = null,
     ) {
     }
 
     public static function text(string|null $path = null): self
     {
-        return new self('text', $path);
+        return new self(FilterCastType::Text, $path);
     }
 
     public static function bool(string|null $path = null): self
     {
-        return new self('scalar', $path, 'bool');
+        return new self(FilterCastType::Bool, $path);
     }
 
     public static function int(string|null $path = null): self
     {
-        return new self('scalar', $path, 'int');
+        return new self(FilterCastType::Int, $path);
     }
 
     public static function float(string|null $path = null): self
     {
-        return new self('scalar', $path, 'float');
+        return new self(FilterCastType::Float, $path);
     }
 
     public static function array(string|null $path = null): self
     {
-        return new self('array', $path);
+        return new self(FilterCastType::ArrayType, $path);
     }
 
     public static function number(string|null $path = null): self
     {
-        return new self('number', $path, 'float');
+        return new self(FilterCastType::Number, $path);
     }
 
     public static function date(string|null $path = null): self
     {
-        return new self('date', $path, 'date');
+        return new self(FilterCastType::Date, $path);
     }
 
     public function castValue(string $value): mixed
     {
-        return match ($this->cast) {
-            'bool' => 'true' === strtolower($value),
-            'int' => (int) $value,
-            'float' => (float) $value,
-            'date' => new \DateTimeImmutable($value),
-            default => $value,
-        };
+        return $this->type->cast($value);
     }
 
     /** @param list<string> $values */

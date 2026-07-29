@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Letkode\QueryFilterBundle\Request;
 
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
-use Letkode\QueryFilterBundle\Filter\QueryFilter;
+use Letkode\QueryFilterBundle\Filter\FilterQuery;
 
-final readonly class QueryFilterRequest
+final readonly class FilterQueryRequest
 {
     /**
      * @param list<FilterCriteria> $filters
@@ -34,7 +34,7 @@ final readonly class QueryFilterRequest
             q: isset($params['q']) && '' !== $params['q'] ? (string) $params['q'] : null,
             sort: isset($params['sort']) && '' !== $params['sort'] ? (string) $params['sort'] : null,
             dir: \in_array($dir, ['asc', 'desc'], true) ? $dir : 'asc',
-            filters: QueryFilter::fromArray($rawFilters),
+            filters: FilterQuery::fromArray($rawFilters),
         );
     }
 }

@@ -5,19 +5,19 @@ declare(strict_types=1);
 namespace Letkode\QueryFilterBundle\Tests\Filter;
 
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
-use Letkode\QueryFilterBundle\Filter\QueryFilter;
+use Letkode\QueryFilterBundle\Filter\FilterQuery;
 use PHPUnit\Framework\TestCase;
 
-final class QueryFilterTest extends TestCase
+final class FilterQueryTest extends TestCase
 {
     public function testFromArrayWithEmptyInput(): void
     {
-        self::assertSame([], QueryFilter::fromArray([]));
+        self::assertSame([], FilterQuery::fromArray([]));
     }
 
     public function testFromArrayParsesFiltersWithSingleValue(): void
     {
-        $filters = QueryFilter::fromArray([
+        $filters = FilterQuery::fromArray([
             'firstName' => [['op' => 'is', 'value' => ['PRUEBA']]],
         ]);
 
@@ -30,7 +30,7 @@ final class QueryFilterTest extends TestCase
 
     public function testFromArrayParsesValuelessOperator(): void
     {
-        $filters = QueryFilter::fromArray([
+        $filters = FilterQuery::fromArray([
             'email' => [['op' => 'empty']],
         ]);
 
@@ -41,7 +41,7 @@ final class QueryFilterTest extends TestCase
 
     public function testFromArrayIgnoresFiltersWithoutOp(): void
     {
-        $filters = QueryFilter::fromArray([
+        $filters = FilterQuery::fromArray([
             'firstName' => [['value' => ['foo']]],
         ]);
 
@@ -50,7 +50,7 @@ final class QueryFilterTest extends TestCase
 
     public function testFromArrayParsesMultipleConditionsPerField(): void
     {
-        $filters = QueryFilter::fromArray([
+        $filters = FilterQuery::fromArray([
             'firstName' => [
                 ['op' => 'contains', 'value' => ['An']],
                 ['op' => 'ends_with', 'value' => ['o']],
@@ -64,7 +64,7 @@ final class QueryFilterTest extends TestCase
 
     public function testFromArrayIgnoresNonArrayEntries(): void
     {
-        $filters = QueryFilter::fromArray([
+        $filters = FilterQuery::fromArray([
             'firstName' => 'not-an-array',
         ]);
 
