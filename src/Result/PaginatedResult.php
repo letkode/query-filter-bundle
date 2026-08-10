@@ -4,10 +4,16 @@ declare(strict_types=1);
 
 namespace Letkode\QueryFilterBundle\Result;
 
+/**
+ * @template T
+ */
 final readonly class PaginatedResult
 {
     public int $totalPages;
 
+    /**
+     * @param list<T> $data
+     */
     public function __construct(
         public array $data,
         public int $total,

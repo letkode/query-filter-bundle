@@ -26,7 +26,7 @@ final class FilterQueryStringRequestTest extends TestCase
         $violations = $validator->validate(new FilterQueryStringRequest(page: 0));
 
         self::assertGreaterThan(0, \count($violations));
-        self::assertSame('page', $violations[0]->getPropertyPath());
+        self::assertSame('page', $violations->get(0)->getPropertyPath());
     }
 
     public function testPageMustNotBeNegative(): void
@@ -45,7 +45,7 @@ final class FilterQueryStringRequestTest extends TestCase
         $violations = $validator->validate(new FilterQueryStringRequest(perPage: 101));
 
         self::assertGreaterThan(0, \count($violations));
-        self::assertSame('perPage', $violations[0]->getPropertyPath());
+        self::assertSame('perPage', $violations->get(0)->getPropertyPath());
     }
 
     public function testPerPageMustBeAtLeast1(): void
@@ -64,7 +64,7 @@ final class FilterQueryStringRequestTest extends TestCase
         $violations = $validator->validate(new FilterQueryStringRequest(dir: 'random'));
 
         self::assertGreaterThan(0, \count($violations));
-        self::assertSame('dir', $violations[0]->getPropertyPath());
+        self::assertSame('dir', $violations->get(0)->getPropertyPath());
     }
 
     public function testDirAllowsDesc(): void

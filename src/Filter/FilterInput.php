@@ -52,8 +52,12 @@ final readonly class FilterInput
         return $this->type->cast($value);
     }
 
-    /** @param list<string> $values */
-    public function castValues(array $values): mixed
+    /**
+     * @param list<string> $values
+     *
+     * @return list<mixed>
+     */
+    public function castValues(array $values): array
     {
         return array_map($this->castValue(...), $values);
     }

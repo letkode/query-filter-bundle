@@ -11,6 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2026-08-10
+
+### Fixed
+- `composer.json` `type` corrected from `library` to `symfony-bundle`
+- `composer.json` now declares `symfony/dependency-injection` and `symfony/http-kernel` in `require` — `LetkodeQueryFilterBundle` extends `AbstractBundle` from `symfony/http-kernel` and was never actually installable standalone without them
+- `phpstan.neon` added (was required as a dev dependency but never configured); package is now phpstan level 9 clean
+- `FilterInput::castValues()` return type corrected from `mixed` to `list<mixed>`, matching what it actually returns
+- `Result\PaginatedResult` is now generic (`@template T`, `list<T> $data`)
+- `Filter\FilterQuery::fromArray()` no longer passes `'strval'` (a plain string) as an `array_map()` callback without narrowing scalar values first
+- `Request\FilterQueryRequest::fromArray()` no longer casts unvalidated `mixed` query params directly to `string`/`int`
+
+No behavior changes for well-formed input; all fixes are dependency and type-safety only. 53 tests unchanged and passing.
+
+---
+
 ## [1.2.0] - 2026-07-29
 
 ### Added

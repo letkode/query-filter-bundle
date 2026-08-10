@@ -8,6 +8,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 final readonly class FilterQueryStringRequest
 {
+    /**
+     * @param array<string, mixed> $filters
+     */
     public function __construct(
         #[Assert\Positive]
         public int $page = 1,

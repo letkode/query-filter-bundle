@@ -21,15 +21,15 @@ final readonly class FilterQuery
             }
 
             foreach ($data as $entry) {
-                if (!\is_array($entry) || !isset($entry['op'])) {
+                if (!\is_array($entry) || !isset($entry['op']) || !\is_string($entry['op'])) {
                     continue;
                 }
 
                 $values = isset($entry['value']) && \is_array($entry['value'])
-                    ? array_values(array_map('strval', $entry['value']))
+                    ? array_values(array_map(static fn (mixed $v): string => \is_scalar($v) ? (string) $v : '', $entry['value']))
                     : [];
 
-                $filters[] = new FilterCriteria((string) $field, (string) $entry['op'], $values);
+                $filters[] = new FilterCriteria((string) $field, $entry['op'], $values);
             }
         }
 
