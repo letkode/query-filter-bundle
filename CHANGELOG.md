@@ -11,6 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.3.0] - 2026-08-18
+
+### Added
+- `Response\PaginationValueResponse`: pagination metadata DTO (`total`, `perPage`, `totalPages`, `page`), for API responses that expose pagination without leaking the paginated data itself
+
+### Changed
+- `Result\PaginatedResult` renamed to `Result\PaginatedResultRepository` — the name now makes clear this is the repository-layer result (data + pagination metadata), distinct from `Response\PaginationValueResponse`
+
+### BC breaks
+- Code referencing `Result\PaginatedResult` must be updated to `Result\PaginatedResultRepository`
+
+---
+
 ## [1.2.1] - 2026-08-10
 
 ### Fixed

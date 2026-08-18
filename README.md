@@ -109,13 +109,34 @@ $query = FilterQueryRequestFactory::build($queryStringRequest);
 
 ## `Result/`
 
-### `PaginatedResult`
+### `PaginatedResultRepository`
+
+Returned by the repository layer: the paginated data plus its pagination metadata.
 
 ```php
-use Letkode\QueryFilterBundle\Result\PaginatedResult;
+use Letkode\QueryFilterBundle\Result\PaginatedResultRepository;
 
-$result = new PaginatedResult(data: $items, total: 120, page: 1, perPage: 20);
+$result = new PaginatedResultRepository(data: $items, total: 120, page: 1, perPage: 20);
 $result->totalPages; // computed, e.g. 6
+```
+
+---
+
+## `Response/`
+
+### `PaginationValueResponse`
+
+Pagination metadata only, without the data — for API responses that expose pagination separately from the result set.
+
+```php
+use Letkode\QueryFilterBundle\Response\PaginationValueResponse;
+
+$pagination = new PaginationValueResponse(
+    total: $result->total,
+    perPage: $result->perPage,
+    totalPages: $result->totalPages,
+    page: $result->page,
+);
 ```
 
 ---

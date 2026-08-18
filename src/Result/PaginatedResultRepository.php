@@ -7,7 +7,7 @@ namespace Letkode\QueryFilterBundle\Result;
 /**
  * @template T
  */
-final readonly class PaginatedResult
+final readonly class PaginatedResultRepository
 {
     public int $totalPages;
 
