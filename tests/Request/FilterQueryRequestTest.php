@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Letkode\QueryFilterBundle\Tests\Request;
 
+use Letkode\QueryFilterBundle\Exception\RejectionReason;
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
 use Letkode\QueryFilterBundle\Request\FilterQueryRequest;
 use PHPUnit\Framework\TestCase;
@@ -20,6 +21,7 @@ final class FilterQueryRequestTest extends TestCase
         self::assertNull($request->sort);
         self::assertSame('asc', $request->dir);
         self::assertSame([], $request->filters);
+        self::assertSame([], $request->rejected);
     }
 
     public function testFromArrayWithAllParams(): void
@@ -148,7 +150,7 @@ final class FilterQueryRequestTest extends TestCase
         self::assertSame([], $request->filters[0]->values);
     }
 
-    public function testFromArrayIgnoresFiltersWithoutOp(): void
+    public function testFromArrayRejectsFiltersWithoutOp(): void
     {
         $request = FilterQueryRequest::fromArray([
             'filters' => [
@@ -157,6 +159,24 @@ final class FilterQueryRequestTest extends TestCase
         ]);
 
         self::assertSame([], $request->filters);
+        self::assertCount(1, $request->rejected);
+        self::assertSame('filters.firstName', $request->rejected[0]->parameter);
+        self::assertSame(RejectionReason::MalformedFilter, $request->rejected[0]->reason);
+    }
+
+    public function testFromArrayPopulatesRejectedForMalformedFilterValue(): void
+    {
+        $request = FilterQueryRequest::fromArray([
+            'filters' => [
+                'stage' => 'is:done',
+            ],
+        ]);
+
+        self::assertSame([], $request->filters);
+        self::assertCount(1, $request->rejected);
+        self::assertSame('filters.stage', $request->rejected[0]->parameter);
+        self::assertSame(RejectionReason::MalformedFilter, $request->rejected[0]->reason);
+        self::assertSame('is:done', $request->rejected[0]->value);
     }
 
     public function testFromArrayHandlesMultipleFilters(): void

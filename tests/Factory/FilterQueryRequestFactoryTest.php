@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Letkode\QueryFilterBundle\Tests\Factory;
 
+use Letkode\QueryFilterBundle\Exception\RejectionReason;
 use Letkode\QueryFilterBundle\Factory\FilterQueryRequestFactory;
 use Letkode\QueryFilterBundle\Filter\FilterCriteria;
 use Letkode\QueryFilterBundle\Request\FilterQueryStringRequest;
@@ -44,5 +45,20 @@ final class FilterQueryRequestFactoryTest extends TestCase
         $result = FilterQueryRequestFactory::build(new FilterQueryStringRequest());
 
         self::assertSame([], $result->filters);
+        self::assertSame([], $result->rejected);
+    }
+
+    public function testBuildForwardsMalformedFilterRejections(): void
+    {
+        $query = new FilterQueryStringRequest(filters: [
+            'stage' => 'is:done',
+        ]);
+
+        $result = FilterQueryRequestFactory::build($query);
+
+        self::assertSame([], $result->filters);
+        self::assertCount(1, $result->rejected);
+        self::assertSame('filters.stage', $result->rejected[0]->parameter);
+        self::assertSame(RejectionReason::MalformedFilter, $result->rejected[0]->reason);
     }
 }

@@ -56,14 +56,18 @@ $input->castValues(['1', '2']);        // list<mixed>
 
 ### `FilterQuery`
 
-Parses raw filter arrays (as sent by a frontend) into `list<FilterCriteria>`.
+Parses raw filter arrays (as sent by a frontend) into a `ParsedFilterQuery`:
+`->criteria` holds the well-formed `list<FilterCriteria>`, `->rejected` holds a
+`list<QueryParameterRejection>` for entries that were structurally malformed
+(value not an array, entry not an array, missing/non-string `op`).
 
 ```php
 use Letkode\QueryFilterBundle\Filter\FilterQuery;
 
-$filters = FilterQuery::fromArray([
+$parsed = FilterQuery::fromArray([
     'firstName' => [['op' => 'is', 'value' => ['Ana']]],
 ]);
+// $parsed->criteria, $parsed->rejected
 ```
 
 ---
@@ -89,6 +93,7 @@ use Letkode\QueryFilterBundle\Request\FilterQueryRequest;
 
 $query = FilterQueryRequest::fromArray($request->query->all());
 // $query->page, $query->perPage, $query->q, $query->sort, $query->dir, $query->filters
+// $query->rejected — list<QueryParameterRejection> for malformed filter entries
 ```
 
 ---

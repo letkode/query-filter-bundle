@@ -1,0 +1,4 @@
+query_filter.not_sortable: 'Sorting by "%value%" is not allowed.'
+query_filter.not_filterable: 'Filtering by "%value%" is not allowed.'
+query_filter.unknown_operator: 'The operator "%value%" is not supported.'
+query_filter.malformed_filter: 'The filter "%value%" is malformed.'
