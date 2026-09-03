@@ -12,13 +12,16 @@ final class FilterQueryRequestFactory
 {
     public static function build(FilterQueryStringRequest $query): FilterQueryRequest
     {
+        $parsed = FilterQuery::fromArray($query->filters);
+
         return new FilterQueryRequest(
             page: $query->page,
             perPage: $query->perPage,
             q: $query->q,
             sort: $query->sort,
             dir: $query->dir,
-            filters: FilterQuery::fromArray($query->filters),
+            filters: $parsed->criteria,
+            rejected: $parsed->rejected,
         );
     }
 }

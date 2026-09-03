@@ -7,7 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [1.4.0] - 2026-09-03
+
+### Added
+- `Exception\RejectionReason`: backed enum (`not_sortable`, `not_filterable`, `unknown_operator`, `malformed_filter`) identifying why a query parameter was rejected; the value doubles as the `query_filter.<value>` translation key
+- `Exception\QueryParameterRejection`: readonly DTO `{parameter, reason, value}` describing a single rejected parameter, keyed by dot-notation path (`sort`, `filters.etapa`)
+- `Exception\UndeclaredQueryParameterException`: HTTP-agnostic exception carrying a `non-empty-list<QueryParameterRejection>` so a caller can report every rejection at once and translate it to a response itself
+- `Filter\ParsedFilterQuery`: readonly result of `FilterQuery::fromArray()`, exposing `criteria` (well-formed `FilterCriteria`) and `rejected` (malformed entries)
+- `translations/query_filter.{en,es}.yaml`: default message catalog for the four rejection reasons, auto-registered by the bundle and overridable per app
+
+### Changed
+- `Filter\FilterQuery::fromArray()` now returns `Filter\ParsedFilterQuery` instead of `list<FilterCriteria>`. Malformed filter input (value not an array, entry not an array, missing/non-string `op`) is now collected as a `QueryParameterRejection` instead of being dropped silently
+- `Request\FilterQueryRequest` gains a `rejected` constructor argument / property (`list<QueryParameterRejection>`, last, defaults to `[]`), populated by `fromArray()` from the parsed malformed entries
+- `Factory\FilterQueryRequestFactory::build()` forwards the parsed rejections onto the `FilterQueryRequest`
+
+### BC breaks
+- `FilterQuery::fromArray()` return type changed from `list<FilterCriteria>` to `ParsedFilterQuery`; callers must read `->criteria`. Kept at a minor version because every downstream consumer is still in development.
+- `FilterQueryRequest` construction is unaffected: the new `rejected` argument is last and optional.
 
 ---
 
