@@ -146,10 +146,25 @@ $pagination = new PaginationValueResponse(
 
 ---
 
+## `Exception/`
+
+### `UndeclaredQueryParameterException`
+
+Carries every rejected query parameter (`QueryParameterRejection`: `parameter`, `reason`, `value`). The exception itself is HTTP-agnostic.
+
+The bundle registers a `kernel.exception` listener (always active, priority `10`) that converts it into the 422 Symfony produces for an invalid request payload: an `UnprocessableEntityHttpException` wrapping a `ValidationFailedException`, with one violation per rejection:
+
+- the violation's property path is the rejected `parameter` (`sort`, `filters.etapa`);
+- its message is the translation of `query_filter.<reason>` in the `query_filter` domain (English and Spanish are included, override any key in your app's `translations/query_filter.<locale>.yaml`).
+
+The listener only converts the exception; the response is rendered by your exception listener, which must understand `UnprocessableEntityHttpException` + `ValidationFailedException` (the one in `letkode/http-exception-bundle` does, and so does any listener that handles `#[MapRequestPayload]` failures). A Symfony translator is required for the messages.
+
+---
+
 ## Requirements
 
 - PHP `^8.4`
-- Symfony `^7.0 || ^8.0` (`symfony/validator`)
+- Symfony `^7.0 || ^8.0` (`config`, `dependency-injection`, `http-kernel`, `validator`, `yaml`, `translation-contracts`)
 
 ---
 

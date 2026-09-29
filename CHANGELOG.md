@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.5.0] - 2026-09-29
+
+### Added
+- `EventListener\UndeclaredQueryParameterListener`: a `kernel.exception` listener (priority `10`, always active) that converts `UndeclaredQueryParameterException` into an `UnprocessableEntityHttpException` (422) wrapping a `ValidationFailedException`, with one violation per `QueryParameterRejection` (property path = `parameter`, message = translated `query_filter.<reason>`). Any exception listener that already renders that shape, such as the one in `letkode/http-exception-bundle`, now answers 422 instead of 500 for an undeclared or malformed query parameter. The exception itself stays HTTP-agnostic.
+- `config/services.yaml`, imported by the bundle to register the listener.
+
+### Changed
+- `symfony/config`, `symfony/yaml` and `symfony/translation-contracts` are now required, since the bundle loads its service definitions and translations and uses the translator.
+
+---
+
 ## [1.4.0] - 2026-09-03
 
 ### Added
