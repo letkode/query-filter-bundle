@@ -5,6 +5,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.4",
+        "letkode/http-exception-bundle": "^1.2",
         "symfony/config": "^7.0 || ^8.0",
         "symfony/dependency-injection": "^7.0 || ^8.0",
         "symfony/http-kernel": "^7.0 || ^8.0",

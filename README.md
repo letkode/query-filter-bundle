@@ -150,20 +150,34 @@ $pagination = new PaginationValueResponse(
 
 ### `UndeclaredQueryParameterException`
 
-Carries every rejected query parameter (`QueryParameterRejection`: `parameter`, `reason`, `value`). The exception itself is HTTP-agnostic.
+Thrown when a query carries parameters the consumer did not declare (unknown sort/filter field, unsupported operator) or that are malformed. It carries every rejection at once (`->rejections`: a list of `QueryParameterRejection` with `parameter`, `reason` and `value`).
 
-The bundle registers a `kernel.exception` listener (always active, priority `10`) that converts it into the 422 Symfony produces for an invalid request payload: an `UnprocessableEntityHttpException` wrapping a `ValidationFailedException`, with one violation per rejection:
+It is an HTTP status exception of [`letkode/http-exception-bundle`](https://github.com/letkode/http-exception-bundle) (it extends `AbstractHttpStatusException`), so that bundle's `ExceptionListener` answers it with:
 
-- the violation's property path is the rejected `parameter` (`sort`, `filters.etapa`);
-- its message is the translation of `query_filter.<reason>` in the `query_filter` domain (English and Spanish are included, override any key in your app's `translations/query_filter.<locale>.yaml`).
+```json
+{
+  "success": false,
+  "message": "The query contains undeclared or invalid parameters.",
+  "status": 422,
+  "errorCode": "INVALID_QUERY_PARAMETERS",
+  "errors": {
+    "sort": ["Sorting by \"secret\" is not allowed."],
+    "filters.etapa": ["Filtering by \"etapa\" is not allowed."]
+  }
+}
+```
 
-The listener only converts the exception; the response is rendered by your exception listener, which must understand `UnprocessableEntityHttpException` + `ValidationFailedException` (the one in `letkode/http-exception-bundle` does, and so does any listener that handles `#[MapRequestPayload]` failures). A Symfony translator is required for the messages.
+- `errors` is keyed by the rejected `parameter` (dot notation: `sort`, `filters.etapa`); a parameter rejected more than once has several messages.
+- Messages and the top-level `message` come from the `query_filter` translation domain (`query_filter.<reason>`; English and Spanish are included, override any key in your app's `translations/query_filter.<locale>.yaml`). Each message is a `RejectionMessage`, a Symfony `TranslatableInterface`.
+- The class is not `final`: extend it and override `defaultErrorCode()` to change the code.
+- If your application renders exceptions with its own listener instead, read `->rejections` and build the response yourself, or handle `HttpStatusExceptionInterface` with its `ErrorsOption`.
 
 ---
 
 ## Requirements
 
 - PHP `^8.4`
+- `letkode/http-exception-bundle` `^1.2`
 - Symfony `^7.0 || ^8.0` (`config`, `dependency-injection`, `http-kernel`, `validator`, `yaml`, `translation-contracts`)
 
 ---

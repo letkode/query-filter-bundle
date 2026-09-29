@@ -42,4 +42,17 @@ final class TranslationCatalogTest extends TestCase
 
         self::assertStringContainsString('%value%', $contents);
     }
+
+    #[DataProvider('localeProvider')]
+    public function testCatalogTranslatesTheExceptionMessage(string $locale): void
+    {
+        $contents = file_get_contents(\dirname(__DIR__, 2) . '/translations/query_filter.' . $locale . '.yaml');
+        self::assertIsString($contents);
+
+        self::assertStringContainsString(
+            "'The query contains undeclared or invalid parameters.':",
+            $contents,
+            \sprintf('Missing exception message key in %s catalog', $locale),
+        );
+    }
 }

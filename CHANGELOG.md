@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.0] - 2026-09-29
+
+### Changed
+- `Exception\UndeclaredQueryParameterException` is now an HTTP status exception: it extends `AbstractHttpStatusException` from `letkode/http-exception-bundle`, answers with status `422` and the error code `INVALID_QUERY_PARAMETERS`, exposes the rejections as an `ErrorsOption` keyed by parameter and translates its message in the `query_filter` domain. The constructor (`non-empty-list<QueryParameterRejection>`) and `->rejections` are unchanged, so existing `catch` blocks keep working. The class is no longer `final`.
+- `letkode/http-exception-bundle` `^1.2` is now required.
+
+### Added
+- `Exception\RejectionMessage`: a Symfony `TranslatableInterface` that translates `query_filter.<reason>` with the rejected value as `%value%`.
+- `query_filter.{en,es}.yaml` translate the exception message.
+
+### Removed
+- `EventListener\UndeclaredQueryParameterListener` and `config/services.yaml`, introduced in 1.5.0: the exception is now rendered directly by the `ExceptionListener` of `letkode/http-exception-bundle`, so no conversion is needed.
+
+---
+
 ## [1.5.0] - 2026-09-29
 
 ### Added
