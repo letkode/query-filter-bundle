@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.6.1] - 2026-09-30
+
+### Fixed
+- `LetkodeQueryFilterBundle::loadExtension()` still imported `config/services.yaml`, which 1.6.0 had removed, so loading the bundle failed with `The file ".../config/services.yaml" does not exist`. 1.6.0 must not be used; upgrade to 1.6.1.
+- Added tests that load the extension into a container and compile it, so a missing import cannot ship again.
+
+---
+
 ## [1.6.0] - 2026-09-29
 
 ### Changed
