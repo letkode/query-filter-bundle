@@ -6,10 +6,63 @@ namespace Letkode\QueryFilterBundle\Tests\Filter;
 
 use Letkode\QueryFilterBundle\Filter\FilterCastType;
 use Letkode\QueryFilterBundle\Filter\FilterInput;
+use Letkode\QueryFilterBundle\Filter\PropertyCase;
+use Letkode\QueryFilterBundle\Filter\PropertyCaseRegistry;
 use PHPUnit\Framework\TestCase;
 
 final class FilterInputTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        PropertyCaseRegistry::set(PropertyCase::None);
+    }
+
+    public function testResolvePathKeepsTheKeyByDefault(): void
+    {
+        self::assertSame('legal_name', FilterInput::text()->resolvePath('legal_name'));
+    }
+
+    public function testResolvePathUsesTheGlobalPropertyCase(): void
+    {
+        PropertyCaseRegistry::set(PropertyCase::Camel);
+
+        self::assertSame('legalName', FilterInput::text()->resolvePath('legal_name'));
+    }
+
+    public function testResolvePathNeverConvertsAnExplicitPath(): void
+    {
+        PropertyCaseRegistry::set(PropertyCase::Camel);
+
+        self::assertSame('co.legal_name', FilterInput::text(path: 'co.legal_name')->resolvePath('company_name'));
+        self::assertSame(
+            'co.legal_name',
+            FilterInput::text(path: 'co.legal_name', propertyCase: PropertyCase::Snake)->resolvePath('company_name'),
+        );
+    }
+
+    public function testLocalPropertyCaseOverridesTheGlobalOne(): void
+    {
+        PropertyCaseRegistry::set(PropertyCase::Camel);
+
+        self::assertSame('legal_name', FilterInput::text(propertyCase: PropertyCase::Snake)->resolvePath('legalName'));
+    }
+
+    public function testLocalNoneOverridesAGlobalCase(): void
+    {
+        PropertyCaseRegistry::set(PropertyCase::Camel);
+
+        self::assertSame('legal_name', FilterInput::text(propertyCase: PropertyCase::None)->resolvePath('legal_name'));
+    }
+
+    public function testEveryFactoryAcceptsALocalPropertyCase(): void
+    {
+        foreach (['text', 'bool', 'int', 'float', 'array', 'number', 'date'] as $factory) {
+            $input = FilterInput::$factory(propertyCase: PropertyCase::Camel);
+
+            self::assertSame(PropertyCase::Camel, $input->propertyCase, $factory);
+        }
+    }
+
     public function testTextFactoryCreatesTextType(): void
     {
         $input = FilterInput::text();

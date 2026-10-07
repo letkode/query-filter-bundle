@@ -54,6 +54,35 @@ $input->castValues(['1', '2']);        // list<mixed>
 
 `$input->type` is a `FilterCastType` enum (`Text`, `Bool`, `Int`, `Float`, `Number`, `Date`, `ArrayType`), which owns the casting rule via `$input->type->cast($value)`.
 
+#### Resolving the path: `property_case`
+
+A filter key (`legal_name`) is not always how the field it targets is spelled
+(`legalName`). `$input->resolvePath($key)` returns the path a consumer should use:
+
+1. the explicit `path`, if the input has one — never converted;
+2. otherwise the key converted to the input's own `propertyCase`, if it has one;
+3. otherwise the key converted to the global `property_case`.
+
+```php
+FilterInput::text();                                      // 'legal_name' -> global case
+FilterInput::text(propertyCase: PropertyCase::Snake);     // this input only
+FilterInput::text(path: 'co.legal_name');                 // used as-is
+```
+
+`PropertyCase` is `None` (key used as-is), `Camel` or `Snake`; the converters accept any
+input spelling (`legal_name`, `legal-name`, `legalName`), so only the target is declared.
+Set the global default once:
+
+```yaml
+# config/packages/letkode_query_filter.yaml
+letkode_query_filter:
+    property_case: camel   # none (default) | camel | snake
+```
+
+The example file ships with the package: `bin/console letkode:config:publish query-filter`.
+The query-filter bundle only resolves the path; prefixing it with a query alias is up to the
+consumer (e.g. `letkode/orm-toolkit-bundle`).
+
 ### `FilterQuery`
 
 Parses raw filter arrays (as sent by a frontend) into a `ParsedFilterQuery`:

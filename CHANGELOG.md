@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.7.0] - 2026-10-07
+
+### Added
+- `Filter\PropertyCase` (`None`, `Camel`, `Snake`): converts a filter key to the spelling of the field it targets. Moved here from `letkode/orm-toolkit-bundle`, where it shipped in 2.3.0–2.4.1.
+- `property_case` bundle option (`letkode_query_filter.property_case`, default `none`): the global property case, published to `Filter\PropertyCaseRegistry` on boot.
+- `FilterInput::resolvePath(string $key)`: the explicit `path` when present (never converted), otherwise the key converted to the input's `propertyCase` or, failing that, the global one.
+- Every `FilterInput` factory takes an optional `propertyCase` argument that overrides the global setting for that input only.
+- `resources/config/letkode_query_filter.yaml.dist`, published with `bin/console letkode:config:publish query-filter`.
+- `symfony/string` and `letkode/config-publisher-bundle` are now required.
+
+---
+
 ## [1.6.1] - 2026-09-30
 
 ### Fixed
