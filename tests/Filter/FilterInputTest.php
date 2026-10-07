@@ -8,6 +8,7 @@ use Letkode\QueryFilterBundle\Filter\FilterCastType;
 use Letkode\QueryFilterBundle\Filter\FilterInput;
 use Letkode\QueryFilterBundle\Filter\PropertyCase;
 use Letkode\QueryFilterBundle\Filter\PropertyCaseRegistry;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 final class FilterInputTest extends TestCase
@@ -17,26 +18,26 @@ final class FilterInputTest extends TestCase
         PropertyCaseRegistry::set(PropertyCase::None);
     }
 
-    public function testResolvePathKeepsTheKeyByDefault(): void
+    public function testResolvePropertyKeepsTheKeyByDefault(): void
     {
-        self::assertSame('legal_name', FilterInput::text()->resolvePath('legal_name'));
+        self::assertSame('legal_name', FilterInput::text()->resolveProperty('legal_name'));
     }
 
-    public function testResolvePathUsesTheGlobalPropertyCase(): void
+    public function testResolvePropertyUsesTheGlobalPropertyCase(): void
     {
         PropertyCaseRegistry::set(PropertyCase::Camel);
 
-        self::assertSame('legalName', FilterInput::text()->resolvePath('legal_name'));
+        self::assertSame('legalName', FilterInput::text()->resolveProperty('legal_name'));
     }
 
-    public function testResolvePathNeverConvertsAnExplicitPath(): void
+    public function testExplicitPropertyIsNeverConverted(): void
     {
         PropertyCaseRegistry::set(PropertyCase::Camel);
 
-        self::assertSame('co.legal_name', FilterInput::text(path: 'co.legal_name')->resolvePath('company_name'));
+        self::assertSame('legal_name', FilterInput::text(property: 'legal_name')->resolveProperty('company_name'));
         self::assertSame(
-            'co.legal_name',
-            FilterInput::text(path: 'co.legal_name', propertyCase: PropertyCase::Snake)->resolvePath('company_name'),
+            'legal_name',
+            FilterInput::text(property: 'legal_name', propertyCase: PropertyCase::Camel)->resolveProperty('company_name'),
         );
     }
 
@@ -44,14 +45,61 @@ final class FilterInputTest extends TestCase
     {
         PropertyCaseRegistry::set(PropertyCase::Camel);
 
-        self::assertSame('legal_name', FilterInput::text(propertyCase: PropertyCase::Snake)->resolvePath('legalName'));
+        self::assertSame('legal_name', FilterInput::text(propertyCase: PropertyCase::Snake)->resolveProperty('legalName'));
     }
 
     public function testLocalNoneOverridesAGlobalCase(): void
     {
         PropertyCaseRegistry::set(PropertyCase::Camel);
 
-        self::assertSame('legal_name', FilterInput::text(propertyCase: PropertyCase::None)->resolvePath('legal_name'));
+        self::assertSame('legal_name', FilterInput::text(propertyCase: PropertyCase::None)->resolveProperty('legal_name'));
+    }
+
+    public function testAliasDoesNotAffectTheResolvedProperty(): void
+    {
+        PropertyCaseRegistry::set(PropertyCase::Camel);
+
+        $input = FilterInput::text(alias: 'c');
+
+        self::assertSame('c', $input->alias);
+        self::assertSame('legalName', $input->resolveProperty('legal_name'));
+    }
+
+    public function testExpressionIsKeptAsDeclared(): void
+    {
+        $input = FilterInput::text(expression: "CONCAT(u.firstName, ' ', u.lastName)");
+
+        self::assertSame("CONCAT(u.firstName, ' ', u.lastName)", $input->expression);
+        self::assertNull($input->alias);
+        self::assertNull($input->property);
+    }
+
+    /**
+     * @return iterable<string, array{\Closure(): FilterInput}>
+     */
+    public static function conflictingWithExpression(): iterable
+    {
+        yield 'alias' => [static fn (): FilterInput => FilterInput::text(alias: 'u', expression: 'UNACCENT(u.name)')];
+        yield 'property' => [static fn (): FilterInput => FilterInput::text(property: 'name', expression: 'UNACCENT(u.name)')];
+        yield 'property case' => [static fn (): FilterInput => FilterInput::text(propertyCase: PropertyCase::Camel, expression: 'UNACCENT(u.name)')];
+    }
+
+    /**
+     * @param \Closure(): FilterInput $declare
+     */
+    #[DataProvider('conflictingWithExpression')]
+    public function testExpressionCannotBeCombinedWithAliasPropertyOrCase(\Closure $declare): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        $declare();
+    }
+
+    public function testEveryFactoryAcceptsAnExpression(): void
+    {
+        foreach (['text', 'bool', 'int', 'float', 'array', 'number', 'date'] as $factory) {
+            self::assertSame('u.x', FilterInput::$factory(expression: 'u.x')->expression, $factory);
+        }
     }
 
     public function testEveryFactoryAcceptsALocalPropertyCase(): void
@@ -68,14 +116,16 @@ final class FilterInputTest extends TestCase
         $input = FilterInput::text();
 
         self::assertSame(FilterCastType::Text, $input->type);
-        self::assertNull($input->path);
+        self::assertNull($input->alias);
+        self::assertNull($input->property);
     }
 
-    public function testTextFactoryAcceptsCustomPath(): void
+    public function testTextFactoryAcceptsAliasAndProperty(): void
     {
-        $input = FilterInput::text('u.name');
+        $input = FilterInput::text('u', 'name');
 
-        self::assertSame('u.name', $input->path);
+        self::assertSame('u', $input->alias);
+        self::assertSame('name', $input->property);
     }
 
     public function testNumberFactoryCreatesNumberType(): void
@@ -83,7 +133,8 @@ final class FilterInputTest extends TestCase
         $input = FilterInput::number();
 
         self::assertSame(FilterCastType::Number, $input->type);
-        self::assertNull($input->path);
+        self::assertNull($input->alias);
+        self::assertNull($input->property);
     }
 
     public function testNumberCastsToFloat(): void
@@ -99,7 +150,8 @@ final class FilterInputTest extends TestCase
         $input = FilterInput::date();
 
         self::assertSame(FilterCastType::Date, $input->type);
-        self::assertNull($input->path);
+        self::assertNull($input->alias);
+        self::assertNull($input->property);
     }
 
     public function testDateCastsToDateTimeImmutable(): void
@@ -132,17 +184,19 @@ final class FilterInputTest extends TestCase
         self::assertSame('2024-12-31', $result[1]->format('Y-m-d'));
     }
 
-    public function testNumberFactoryAcceptsCustomPath(): void
+    public function testNumberFactoryAcceptsAliasAndProperty(): void
     {
-        $input = FilterInput::number('p.price');
+        $input = FilterInput::number(alias: 'p', property: 'price');
 
-        self::assertSame('p.price', $input->path);
+        self::assertSame('p', $input->alias);
+        self::assertSame('price', $input->property);
     }
 
-    public function testDateFactoryAcceptsCustomPath(): void
+    public function testDateFactoryAcceptsAliasAndProperty(): void
     {
-        $input = FilterInput::date('u.createdAt');
+        $input = FilterInput::date(alias: 'u', property: 'createdAt');
 
-        self::assertSame('u.createdAt', $input->path);
+        self::assertSame('u', $input->alias);
+        self::assertSame('createdAt', $input->property);
     }
 }

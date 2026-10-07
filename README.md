@@ -54,19 +54,33 @@ $input->castValues(['1', '2']);        // list<mixed>
 
 `$input->type` is a `FilterCastType` enum (`Text`, `Bool`, `Int`, `Float`, `Number`, `Date`, `ArrayType`), which owns the casting rule via `$input->type->cast($value)`.
 
-#### Resolving the path: `property_case`
+#### Where a filter points: `alias`, `property` and `property_case`
 
-A filter key (`legal_name`) is not always how the field it targets is spelled
-(`legalName`). `$input->resolvePath($key)` returns the path a consumer should use:
+A filter key (`legal_name`) is not always how the field it targets is spelled (`legalName`), nor
+does it always live on the root of the query. A `FilterInput` says where it points with two
+optional arguments, and the consumer joins them (`alias.property`):
 
-1. the explicit `path`, if the input has one — never converted;
-2. otherwise the key converted to the input's own `propertyCase`, if it has one;
-3. otherwise the key converted to the global `property_case`.
+- `alias`: the query alias that owns the field (e.g. a joined entity). When omitted, the
+  consumer uses its own default (the root alias).
+- `property`: the field's name. When omitted, `$input->resolveProperty($key)` converts the key to
+  the input's own `propertyCase`, or failing that, to the global `property_case`. An explicit
+  `property` is never converted.
 
 ```php
-FilterInput::text();                                      // 'legal_name' -> global case
+FilterInput::text();                                      // 'legal_name' -> legalName (global case)
+FilterInput::text(alias: 'c');                            // c.legalName
+FilterInput::array(alias: 'rp', property: 'uuid');        // rp.uuid
+FilterInput::bool(property: 'enabled');                   // <root>.enabled, key can be 'active'
 FilterInput::text(propertyCase: PropertyCase::Snake);     // this input only
-FilterInput::text(path: 'co.legal_name');                 // used as-is
+```
+
+When the filter is not a plain column (a concatenation, `UNACCENT(...)`, a DQL function...),
+declare it with `expression`. It is raw DQL, used as-is, so write it yourself in the repository and
+never build it from request input. It cannot be combined with `alias`, `property` or `propertyCase`
+(an `InvalidArgumentException` is thrown):
+
+```php
+FilterInput::text(expression: "CONCAT(u.firstName, ' ', u.lastName)");
 ```
 
 `PropertyCase` is `None` (key used as-is), `Camel` or `Snake`; the converters accept any
@@ -80,8 +94,8 @@ letkode_query_filter:
 ```
 
 The example file ships with the package: `bin/console letkode:config:publish query-filter`.
-The query-filter bundle only resolves the path; prefixing it with a query alias is up to the
-consumer (e.g. `letkode/orm-toolkit-bundle`).
+The query-filter bundle only resolves the property; building the query path (alias included) is
+up to the consumer (e.g. `letkode/orm-toolkit-bundle`).
 
 ### `FilterQuery`
 

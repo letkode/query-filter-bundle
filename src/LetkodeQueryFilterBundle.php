@@ -25,7 +25,7 @@ final class LetkodeQueryFilterBundle extends AbstractBundle
                 ->enumNode('property_case')
                     ->values(array_column(PropertyCase::cases(), 'value'))
                     ->defaultValue(PropertyCase::None->value)
-                    ->info('Spelling of the fields filters target; a key without an explicit path is converted to it.')
+                    ->info('Spelling of the fields filters target; a key without an explicit property is converted to it.')
                 ->end()
             ->end();
     }

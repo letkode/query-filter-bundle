@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.0.0] - 2026-10-07
+
+### Changed
+- **Breaking:** `FilterInput` no longer takes a `path`. Every factory now takes `alias`, `property`, `propertyCase` and `expression` (in that order): `alias` names the query alias that owns the field (the consumer's root alias when omitted) and `property` the field's name (the key converted to the property case when omitted). A former `path: 'rp.uuid'` becomes `alias: 'rp', property: 'uuid'`; `path: 'c.legalName'` on a key `legal_name` becomes `alias: 'c'`. A filter on something other than a column (e.g. `CONCAT(u.firstName, ' ', u.lastName)`) is declared with `expression`: raw DQL used as-is, never built from request input, and it cannot be combined with `alias`, `property` or `propertyCase` (`InvalidArgumentException`).
+- **Breaking:** `FilterInput::$path` and `FilterInput::resolvePath()` are replaced by `FilterInput::$alias`, `FilterInput::$property` and `FilterInput::resolveProperty()`, which returns the property only; qualifying it with an alias is the consumer's job.
+
+---
+
 ## [1.7.0] - 2026-10-07
 
 ### Added

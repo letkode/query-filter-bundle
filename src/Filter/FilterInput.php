@@ -8,54 +8,60 @@ final readonly class FilterInput
 {
     private function __construct(
         public FilterCastType $type,
-        public string|null $path = null,
+        public string|null $alias = null,
+        public string|null $property = null,
         public PropertyCase|null $propertyCase = null,
+        public string|null $expression = null,
     ) {
+        if (null !== $expression && (null !== $alias || null !== $property || null !== $propertyCase)) {
+            throw new \InvalidArgumentException('A FilterInput expression cannot be combined with an alias, a property or a property case.');
+        }
     }
 
-    public static function text(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function text(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::Text, $path, $propertyCase);
+        return new self(FilterCastType::Text, $alias, $property, $propertyCase, $expression);
     }
 
-    public static function bool(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function bool(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::Bool, $path, $propertyCase);
+        return new self(FilterCastType::Bool, $alias, $property, $propertyCase, $expression);
     }
 
-    public static function int(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function int(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::Int, $path, $propertyCase);
+        return new self(FilterCastType::Int, $alias, $property, $propertyCase, $expression);
     }
 
-    public static function float(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function float(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::Float, $path, $propertyCase);
+        return new self(FilterCastType::Float, $alias, $property, $propertyCase, $expression);
     }
 
-    public static function array(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function array(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::ArrayType, $path, $propertyCase);
+        return new self(FilterCastType::ArrayType, $alias, $property, $propertyCase, $expression);
     }
 
-    public static function number(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function number(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::Number, $path, $propertyCase);
+        return new self(FilterCastType::Number, $alias, $property, $propertyCase, $expression);
     }
 
-    public static function date(string|null $path = null, PropertyCase|null $propertyCase = null): self
+    public static function date(string|null $alias = null, string|null $property = null, PropertyCase|null $propertyCase = null, string|null $expression = null): self
     {
-        return new self(FilterCastType::Date, $path, $propertyCase);
+        return new self(FilterCastType::Date, $alias, $property, $propertyCase, $expression);
     }
 
     /**
-     * The path a filter targets: the explicit path when given, otherwise the key
-     * converted to this input's property case, falling back to the configured one.
-     * An explicit path is never converted.
+     * The property a filter targets: the explicit property when given, otherwise
+     * the key converted to this input's property case, falling back to the
+     * configured one. An explicit property is never converted. Qualifying it
+     * with `$alias` (or a default alias of the consumer's own) is up to the consumer.
      */
-    public function resolvePath(string $key): string
+    public function resolveProperty(string $key): string
     {
-        return $this->path ?? ($this->propertyCase ?? PropertyCaseRegistry::get())->convert($key);
+        return $this->property ?? ($this->propertyCase ?? PropertyCaseRegistry::get())->convert($key);
     }
 
     public function castValue(string $value): mixed

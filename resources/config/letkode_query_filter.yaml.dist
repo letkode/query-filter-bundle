@@ -1,6 +1,6 @@
 letkode_query_filter:
     # Spelling of the fields your filters target (e.g. your entity properties).
-    # A filter key without an explicit path is converted to it.
+    # A filter key without an explicit property is converted to it.
     #   none  - used as-is
     #   camel - 'legal_name' resolves to legalName
     #   snake - 'legalName' resolves to legal_name
